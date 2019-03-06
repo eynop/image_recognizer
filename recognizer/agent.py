@@ -5,36 +5,49 @@ import cv2
 
 class Agent:
 
-    def __init__(self, tracker, env, item=None):
+    def __init__(self, tracker, preprocessor, env, item=None):
         self._tracker = tracker
+        self._preprocessor = preprocessor
         self._env = env
-        self._item = item
+        self.item = item
 
 
     def __repr__(self):
-        return 'Agent: Image item recognition agent'
+        return '{}: Image item recognition agent'.format(type(self).__name__)
 
 
     def set_item(item):
-        self._item = item
+        self.item = item
 
 
     def run(self):
-        preprocessor = Preprocessor(320, 240)
+        while True:
+            self.recognize()
 
-        #state = self._env.get_state()
-        env = preprocessor.process(self._env)
-        item = preprocessor.process(self._item)
 
-        if self._item is None:
+    def recognize(self):
+        if self.item is None:
             print('Agent doesn\'t have item to recognize')
-        else: 
-            fit_kp, fit_des = self._tracker.detect_and_compute(item)
-            query_kp, query_des = self._tracker.detect_and_compute(env)
-            matches = self._tracker.match(fit_des, query_des)
-            if len(matches) > self._tracker.matcher.MIN_MATCH_COUNT:
-                return cv2.drawMatches(env, fit_kp, item, query_kp, matches,None)
+        else:
+            train = self.item.get_img()
+            dtrain = self._preprocessor.process(train)
+            if self.item.kp is None:
+                t_kp, t_des = self._tracker.detect_and_compute(dtrain)
+                self.item.kp = t_kp
+                self.item.des = t_des
             else:
-                return env
+                t_kp = self.item.kp
+                t_des = self.item.des
+            
+            query = self._env.get_img()
+            dquery = self._preprocessor.process(query)
+            q_kp, q_des = self._tracker.detect_and_compute(dquery)
+           
+            matches = self._tracker.match(t_des, q_des)
 
+            if len(matches) > self._tracker.matcher.MIN_MATCH_COUNT:
+                return cv2.drawMatches(dtrain, t_kp, dquery, q_kp, matches, None)
+            else:
+                print('not enough matches')
+                return query
 
