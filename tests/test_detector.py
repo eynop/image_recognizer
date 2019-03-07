@@ -1,5 +1,5 @@
 import pytest
-import recognizer as rec
+from context import recognizer as rec
 
 
 factory = rec.detector.DetectorFactory()
