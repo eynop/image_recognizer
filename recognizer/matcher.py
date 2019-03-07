@@ -10,7 +10,7 @@ class MatcherNotFound(Exception):
 
 class Matcher:
 
-    MIN_MATCH_COUNT = 10
+    MIN_MATCH = 10
 
     def __repr__(self):
         return type(self).__name__
