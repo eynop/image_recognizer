@@ -5,8 +5,8 @@ import cv2
 class Preprocessor:
 
     def __init__(self, width, height, grey=True):
-        self._width = width
-        self._height = height
+        self._width = float(width)
+        self._height = float(height)
         self._grey = grey
 
     
