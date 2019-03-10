@@ -1,4 +1,6 @@
 import argparse
+import os
+import time
 
 import recognizer as rec
 from recognizer.detector import DETECTORS
@@ -7,15 +9,26 @@ from recognizer.matcher import MATCHERS
 import cv2
 
 
+RESULTS_DIR = 'results'
+
+
+def _get_result_img_path():
+    fname = '{}_{}.jpg'.format('result', time.time())
+    path = os.path.join(RESULTS_DIR, fname)
+    return path
+
+
 def main(agent):
-    i = 0
+
+    if not os.path.exists(RESULTS_DIR):
+        os.mkdir(RESULTS_DIR)
+
     while True:
-        res = agent.recognize()
-        cv2.imwrite('result{}.jpg'.format(i), res)
-        #cv2.imshow('RESULT', res)
-        i += 1
-        print(i)
-        if i > 5: break
+        try:
+            res = agent.recognize()
+            cv2.imwrite(_get_result_img_path(), res)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
